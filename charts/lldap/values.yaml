@@ -1,0 +1,60 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/nitnelave/lldap
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 389
+  webuiPort: 17170
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: lldap.example.com  # Endre dette til ditt domene
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: lldap-tls
+      hosts:
+        - lldap.example.com  # Endre dette til ditt domene
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  storageClass: ""  # Angi lagringsklasse om nødvendig
+
+resources: {}
+# Eksempel:
+# resources:
+#   limits:
+#     cpu: 100m
+#     memory: 128Mi
+#   requests:
+#     cpu: 100m
+#     memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+config:
+  listen_addr: "0.0.0.0:389"
+  web:
+    enabled: true
+    listen_addr: "0.0.0.0:17170"
+  database:
+    path: "/var/lib/lldap/db"
+  domain: "dc=example,dc=com"
+  admin_dn: "cn=admin,dc=example,dc=com"
+
+secret:
+  admin_password: "sett-et-sterkt-passord"  # Endre dette eller bruk en Kubernetes Secret
